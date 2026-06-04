@@ -7,7 +7,7 @@
 - PHP >= 8.0 required (uses PHP 8 attributes, match expressions, union types)
 - Database: MySQL 5.6+ with `illuminate/database` Eloquent ORM
 - Frontend: Smarty templates + jQuery + layui
-- Deployment: Docker-based local dev, SCP-based production deploy
+- Deployment: Docker-based local dev and production remote-build deploy
 
 ## Project Structure & Module Organization
 
@@ -274,8 +274,9 @@ This project does not have an automated test suite. Validate changes with:
 
 ## Deployment Notes
 
-- Production server: `shop.kaynlab.com` (GCP VM, Debian 12, Nginx + PHP 8.2 FPM)
-- Project path: `/var/www/acg-faka` (owner: `www-data`)
-- Deploy via `bash deploy.sh` (SCP + permission fix + cache clear)
-- Clear Smarty cache after template changes: `rm -rf runtime/cache/*`
-- View logs: `sudo tail -f /var/www/acg-faka/runtime.log`
+- Production site: `https://shop.kaynstech.com`
+- Production server: GCP VM `acgfaka-hk` (`myvps-2606to2608`, `asia-east2-a`, `34.96.139.162`)
+- Project path: `/opt/acgfaka/repo`; production env file: `/opt/acgfaka/.env.prod`
+- Deploy via `bash deploy.sh` to make the server pull `origin/main`, build the Docker image, restart the stack, and run health checks
+- View deploy logs: `sudo tail -f /opt/acgfaka/deploy.log`
+- View app logs: `sudo docker logs -f acgfaka-app`
