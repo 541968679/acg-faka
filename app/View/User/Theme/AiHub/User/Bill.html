@@ -1,0 +1,11 @@
+#{include file="../Common/Header.html"}
+<div class="mb-6">
+    <h1 class="text-2xl font-bold text-slate-900">账单明细</h1>
+    <p class="text-slate-500 text-sm mt-1">查看所有资金变动记录</p>
+</div>
+<div class="glow-card p-5">
+    <div id="toolbar" class="mb-4 flex flex-wrap items-center gap-2"></div>
+    <table id="table"></table>
+</div>
+#{ready("/assets/user/controller/user/bill.js")}
+#{include file="../Common/Footer.html"}

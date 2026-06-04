@@ -1,0 +1,55 @@
+<a href="/user/dashboard/index" class="sidebar-link #{if $title=='个人主页'} active #{/if}">
+    <i class="fas fa-tachometer-alt w-5 text-center"></i>控制台
+</a>
+<a href="/user/business/index" class="sidebar-link #{if $title=='我的店铺'} active #{/if}">
+    <i class="fas fa-store w-5 text-center"></i>我的店铺#{if $user.businessLevel}<span class="ai-badge ai-badge-purple ml-auto text-xs">#{$user.businessLevel.name}</span>#{/if}
+</a>
+#{if $user.businessLevel and $user.businessLevel.supplier == 1}
+<a href="/user/category/index" class="sidebar-link #{if $title=='商品分类'} active #{/if}">
+    <i class="fas fa-th-large w-5 text-center"></i>商品分类
+</a>
+<a href="/user/commodity/index" class="sidebar-link #{if $title=='我的商品'} active #{/if}">
+    <i class="fas fa-cube w-5 text-center"></i>我的商品
+</a>
+<a href="/user/card/index" class="sidebar-link #{if $title=='卡密管理'} active #{/if}">
+    <i class="fas fa-key w-5 text-center"></i>令牌管理
+</a>
+<a href="/user/coupon/index" class="sidebar-link #{if $title=='代卷管理'} active #{/if}">
+    <i class="fas fa-ticket-alt w-5 text-center"></i>优惠券
+</a>
+<a href="/user/order/index" class="sidebar-link #{if $title=='商品订单'} active #{/if}">
+    <i class="fas fa-receipt w-5 text-center"></i>订单管理
+</a>
+#{/if}
+
+<div class="border-t border-slate-200 my-3"></div>
+
+<a href="/user/recharge/index" class="sidebar-link #{if $title=='充值中心'} active #{/if}">
+    <i class="fas fa-wallet w-5 text-center"></i>充值中心
+</a>
+<a href="/user/personal/purchaseRecord" class="sidebar-link #{if $title=='购买记录'} active #{/if}">
+    <i class="fas fa-history w-5 text-center"></i>购买记录
+</a>
+<a href="/user/cash/index" class="sidebar-link #{if $title=='硬币兑现' or $title=='兑现记录'} active #{/if}">
+    <i class="fas fa-coins w-5 text-center"></i>积分兑现
+</a>
+<a href="/user/agent/member" class="sidebar-link #{if $title=='我的下级'} active #{/if}">
+    <i class="fas fa-users w-5 text-center"></i>我的下级
+</a>
+<a href="/user/bill/index" class="sidebar-link #{if $title=='我的账单'} active #{/if}">
+    <i class="fas fa-file-invoice w-5 text-center"></i>账单明细
+</a>
+
+<div class="border-t border-slate-200 my-3"></div>
+
+<a href="/user/security/personal" class="sidebar-link #{if in_array($title,['个人资料','邮箱设置','手机设置','密码设置'])} active #{/if}">
+    <i class="fas fa-shield-alt w-5 text-center"></i>安全中心
+</a>
+<!--start::HOOK-->
+#{hook(\App\Consts\Hook::USER_VIEW_MENU)}
+<!--end::HOOK-->
+
+<div class="border-t border-slate-200 my-3"></div>
+<a href="javascript:void(0);" class="sidebar-link logout text-red-500 hover:text-red-600">
+    <i class="fas fa-sign-out-alt w-5 text-center"></i>退出登录
+</a>

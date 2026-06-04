@@ -1,0 +1,138 @@
+#{include file="./Header.html"}
+#{item_var($item)}
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <!-- Breadcrumb -->
+    <div class="flex items-center gap-2 text-sm text-slate-400 mb-6">
+        <a href="/" class="hover:text-indigo-600 no-underline transition">首页</a>
+        <i class="fas fa-chevron-right text-xs"></i>
+        <span class="text-slate-700">#{$item.name|strip_tags}</span>
+    </div>
+
+    <!-- Product Detail -->
+    <div class="glow-card p-6 md:p-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+            <!-- Left: Cover Image -->
+            <div class="flex items-center justify-center bg-slate-100 rounded-xl p-4 min-h-[240px]">
+                <img src="#{$item.cover|default:'/assets/aihub/images/default-cover.svg'}" class="item-cover max-w-full max-h-[360px] object-contain rounded-lg" alt="#{$item.name|strip_tags}" onerror="this.src='/assets/aihub/images/default-cover.svg';this.onerror=null;">
+            </div>
+
+            <!-- Right: Info + Form -->
+            <div>
+                <h1 class="text-2xl font-bold text-slate-900 mb-3">#{$item.name}</h1>
+
+                <div class="flex flex-wrap items-center gap-2 mb-4">
+                    #{if $item.seckill_status == 1}
+                    <span class="ai-badge ai-badge-red snap-up" style="display: none;"></span>
+                    #{/if}
+                    <span class="ai-badge ai-badge-green">#{if $item.delivery_way == 0}自动发货#{else}在线发货#{/if}</span>
+                    <span class="ai-badge ai-badge-blue">已售 #{$item.purchase_count + $item.order_sold}</span>
+                    <span class="ai-badge ai-badge-purple item-stock">库存 #{$item.stock}</span>
+                    <button class="ai-badge ai-badge-blue cursor-pointer shared-button hover:bg-blue-500/20 transition">
+                        <i class="fas fa-share-alt mr-1"></i>分享
+                    </button>
+                </div>
+
+                <div class="flex items-baseline gap-2 mb-6 abacus">
+                    <div class="price-tag price"><i class="fas fa-spinner fa-spin text-base"></i></div>
+                </div>
+
+                <form class="vstack space-y-4">
+                    #{if !empty($item.config.category)}
+                    <div>
+                        <label class="block text-sm font-medium text-slate-600 mb-2">套餐类型</label>
+                        <div class="sku-list flex flex-wrap gap-2">
+                            #{foreach $item.config.category as $race => $price}
+                            <a class="switch-race sku #{if $price@first}is-primary#{/if}" data-sku="#{$race}" data-price="#{$price}" href="javascript:void(0);">#{$race}<span class="badge-money">¥#{$price}</span></a>
+                            #{/foreach}
+                        </div>
+                    </div>
+                    #{/if}
+
+                    #{if !empty($item.config.sku)}
+                    #{foreach $item.config.sku as $name => $sku}
+                    <div>
+                        <label class="block text-sm font-medium text-slate-600 mb-2">#{$name}</label>
+                        <div class="sku-list flex flex-wrap gap-2">
+                            #{foreach $sku as $key => $price}
+                            <a class="switch-sku sku #{if $price@first}is-primary#{/if}" data-sku="#{$name}" data-value="#{$key}" data-price="#{$price}" href="javascript:void(0);">#{$key}#{if $price > 0}<span class="badge-money">+¥#{$price}</span>#{/if}</a>
+                            #{/foreach}
+                        </div>
+                    </div>
+                    #{/foreach}
+                    #{/if}
+
+                    #{if $item.draft_status == 1}
+                    <div>
+                        <input type="hidden" name="card_id" class="form-control">
+                        <label class="block text-sm font-medium text-slate-600 mb-2">自选账号</label>
+                        <button type="button" class="optional-card w-full text-left ai-input text-slate-400">未自选,将随机发货</button>
+                    </div>
+                    #{/if}
+
+                    #{if !$user}
+                    <div>
+                        <label class="block text-sm font-medium text-slate-600 mb-2">#{contact_type_msg($item.contact_type)}</label>
+                        <input type="text" name="contact" class="ai-input w-full" placeholder="请输入您的#{contact_type_msg($item.contact_type)}">
+                    </div>
+                    #{/if}
+
+                    #{if $item.coupon == 1}
+                    <div>
+                        <label class="block text-sm font-medium text-slate-600 mb-2">优惠券</label>
+                        <input type="text" class="ai-input w-full" name="coupon" placeholder="优惠券代码，没有则不填">
+                    </div>
+                    #{/if}
+
+                    #{widget_render($item.widget)}
+
+                    #{if $item.password_status == 1}
+                    <div>
+                        <label class="block text-sm font-medium text-slate-600 mb-2">查询密码</label>
+                        <input type="password" class="ai-input w-full" name="password" placeholder="设置查询订单的密码">
+                    </div>
+                    #{/if}
+
+                    <div>
+                        <label class="block text-sm font-medium text-slate-600 mb-2">购买数量</label>
+                        <div class="flex items-center gap-0">
+                            <button type="button" class="change-num-sub px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-l-lg border border-slate-300 transition">−</button>
+                            <input type="number" class="w-20 text-center bg-white border-y border-slate-300 text-slate-800 py-2 focus:outline-none" name="num" value="#{if $item.minimum > 0}#{$item.minimum}#{else}1#{/if}">
+                            <button type="button" class="change-num-add px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-r-lg border border-slate-300 transition">+</button>
+                        </div>
+                    </div>
+
+                    #{if $item.trade_captcha == 1}
+                    <div>
+                        <label class="block text-sm font-medium text-slate-600 mb-2">人机验证</label>
+                        <div class="flex items-center gap-2">
+                            <input type="text" class="ai-input captcha-input w-40" placeholder="图形验证码" name="captcha">
+                            <img class="captcha-img h-10 rounded-lg cursor-pointer" src="/user/captcha/image?action=trade"/>
+                        </div>
+                    </div>
+                    #{/if}
+
+                    <div class="cash-pay pt-4 border-t border-slate-200" style="display: none;">
+                        <label class="block text-sm font-medium text-slate-600 mb-3"><i class="fas fa-credit-card mr-1"></i>选择支付方式</label>
+                        <div class="pay-list"></div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Description -->
+    <div class="glow-card mt-6 p-6 md:p-8">
+        <div class="flex items-center gap-2 mb-4">
+            <i class="fas fa-info-circle text-indigo-500"></i>
+            <h2 class="text-lg font-semibold text-slate-900">详细说明</h2>
+        </div>
+        <div class="prose max-w-none text-slate-600 text-sm leading-relaxed item-detail">
+            #{$item.description}
+        </div>
+    </div>
+
+</main>
+#{ready("/assets/user/controller/index/item.js")}
+#{include file="./Footer.html"}

@@ -1,0 +1,55 @@
+#{include file="../Common/Header.html"}
+<div class="mb-6">
+    <h1 class="text-2xl font-bold text-slate-900">充值中心</h1>
+    <p class="text-slate-500 text-sm mt-1">当前额度: <span class="text-emerald-600 font-semibold">¥#{$user.balance}</span> · 累计充值: <span class="text-indigo-600">¥#{$user.recharge}</span> · 等级: <span class="text-violet-600">#{$user.group.name}</span>
+        #{if $groupNext} · 升级到 <span class="text-violet-600">#{$groupNext.name}</span> 还需 <span class="text-amber-600">¥#{$groupNext.recharge-$user.recharge}</span>#{/if}
+    </p>
+</div>
+
+<div class="glow-card p-6 mb-6">
+    #{if $config.recharge_welfare == 1 && count($welfareConfig) > 0}
+    <div class="mb-4 p-4 rounded-lg bg-emerald-500/5 border border-emerald-500/15">
+        <h4 class="text-sm font-medium text-emerald-600 mb-2"><i class="fas fa-gift mr-1"></i>充值福利</h4>
+        #{foreach $welfareConfig as $wc}
+        <p class="text-sm text-slate-600">充值 <span class="text-amber-600 font-semibold">¥#{$wc.recharge}</span>，赠送 <span class="text-emerald-600 font-semibold">¥#{$wc.amount}</span></p>
+        #{/foreach}
+    </div>
+    #{/if}
+
+    <form class="layui-form space-y-4">
+        <div>
+            <label class="block text-sm font-medium text-slate-600 mb-2">充值金额 <span class="text-emerald-600 text-xs">当前余额: ¥#{$user.balance}</span></label>
+            <input type="text" name="amount" required lay-verify="required" value="#{if $config.recharge_min == 0}10#{else}#{$config.recharge_min}#{/if}" class="ai-input w-48" autocomplete="off">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-slate-600 mb-2">支付方式</label>
+            <div class="pay-list"></div>
+        </div>
+        <div class="pt-2">
+            <button type="button" class="btn-ai px-8 py-2.5 rounded-lg payButton"><i class="fas fa-credit-card mr-2"></i>立即充值</button>
+        </div>
+    </form>
+</div>
+
+<div class="glow-card p-6">
+    <h3 class="text-sm font-semibold text-slate-600 mb-4"><i class="fas fa-layer-group text-indigo-500 mr-2"></i>会员等级 <span class="text-xs text-slate-500 font-normal">充值/消费获得额度，比例 1:1</span></h3>
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead><tr class="border-b border-slate-200">
+                <th class="text-left py-2 text-slate-500 font-medium">等级</th>
+                <th class="text-left py-2 text-slate-500 font-medium">所需额度</th>
+            </tr></thead>
+            <tbody>
+            #{foreach $groups as $g}
+            <tr class="border-b border-slate-200">
+                <td class="py-2.5"><img src="#{$g.icon}" class="h-6 inline mr-1">#{$g.name}</td>
+                <td class="py-2.5 text-amber-600 font-semibold">#{$g.recharge}</td>
+            </tr>
+            #{/foreach}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+#{ready("/assets/user/controller/user/recharge.js")}
+#{include file="../Common/Footer.html"}

@@ -1,0 +1,39 @@
+#{include file="./Header.html"}
+
+<!-- Notice -->
+<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 relative z-20">
+    <div class="glow-card p-4 flex items-start gap-3">
+        <i class="fas fa-bullhorn text-indigo-500 mt-0.5 shrink-0"></i>
+        <div class="text-sm text-slate-600 space-y-1.5">
+            <p>感谢各位老板支持，本站长期提供各类AI工具产品！</p>
+            <p>网站如遇打开问题，请尝试打开魔法-&#x1fa9c;-代理，方式打开！</p>
+            <p>请勿询问小白问题，如质保、怎么登录、如何避免封号等！</p>
+            <p>有的代充是非自动发货，需要付款后对接才可交付</p>
+            <p>例如 claude max x20 等价格比较高的产品</p>
+            <p>claude相关产品目前均无质保，毕竟价格摆在那里</p>
+        </div>
+    </div>
+</section>
+
+<!-- Models / Commodity List -->
+<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-12">
+
+    <!-- Category Chips -->
+    <div class="mb-8">
+        <div class="chip-list flex flex-wrap gap-2">
+            #{foreach $category as $cate}
+            <a data-id="#{$cate.id}" class="switch-category ai-chip #{if $cate@first && $categoryId == 0} is-primary #{elseif $cate.id == $categoryId} is-primary #{/if}" href="javascript:void(0);">#{if $cate.id != 'recommend'}<span class="chip-icon" style="background: url('#{$cate.icon}') center/cover no-repeat;"></span>#{/if}#{$cate.name}</a>
+            #{/foreach}
+        </div>
+    </div>
+
+    <!-- Item Grid -->
+    <div class="item-list grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div class="item-message col-span-full text-center text-slate-400 py-8">
+            <i class="fas fa-spinner fa-spin mr-2"></i>加载中...
+        </div>
+    </div>
+</section>
+
+#{ready("/assets/aihub/js/aihub-index.js")}
+#{include file="./Footer.html"}

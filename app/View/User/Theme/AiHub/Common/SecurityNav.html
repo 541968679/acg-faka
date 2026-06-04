@@ -1,0 +1,17 @@
+<div class="flex flex-wrap gap-2 mb-4">
+    <a href="/user/security/personal" class="sidebar-link text-sm #{if $title=='个人资料'} active #{/if}">
+        <i class="fas fa-user w-4 text-center"></i>个人资料
+    </a>
+    <a href="/user/security/email" class="sidebar-link text-sm #{if $title=='邮箱设置'} active #{/if}">
+        <i class="fas fa-envelope w-4 text-center"></i>邮箱
+    </a>
+    <a href="/user/security/phone" class="sidebar-link text-sm #{if $title=='手机设置'} active #{/if}">
+        <i class="fas fa-mobile-alt w-4 text-center"></i>手机
+    </a>
+    <a href="/user/security/password" class="sidebar-link text-sm #{if $title=='密码设置'} active #{/if}">
+        <i class="fas fa-lock w-4 text-center"></i>密码
+    </a>
+    <!--start::HOOK-->
+    #{hook(\App\Consts\Hook::USER_VIEW_SECURITY_NAV)}
+    <!--end::HOOK-->
+</div>

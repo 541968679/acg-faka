@@ -1,0 +1,94 @@
+#{include file="../Common/Header.html"}
+
+<div class="mb-6">
+    <h1 class="text-2xl font-bold text-slate-900">控制台</h1>
+    <p class="text-slate-500 text-sm mt-1">欢迎回来，#{$user.username}</p>
+</div>
+
+<!-- API Key Section -->
+<div class="glow-card p-5 mb-6">
+    <div class="flex items-center justify-between mb-3">
+        <h3 class="text-sm font-semibold text-slate-600"><i class="fas fa-key text-indigo-500 mr-2"></i>API Key / 商户密钥</h3>
+        <span class="ai-badge ai-badge-blue cursor-pointer reset-key"><i class="fas fa-sync-alt mr-1"></i>重置</span>
+    </div>
+    <div class="flex items-center gap-2">
+        <code class="app-key flex-1 bg-slate-100 border border-slate-200 rounded-lg px-4 py-2.5 text-sm text-indigo-600 font-mono overflow-x-auto">#{$user.app_key}</code>
+        <button class="clipboard px-3 py-2.5 bg-slate-100 hover:bg-slate-200 rounded-lg text-slate-600 transition" data-text="#{$user.app_key}" title="复制">
+            <i class="fas fa-copy"></i>
+        </button>
+    </div>
+    <div class="mt-3 text-xs text-slate-400">商户 ID: <span class="text-slate-500">#{$user.id}</span></div>
+</div>
+
+<!-- Stats Grid -->
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div class="stat-card">
+        <div class="text-xs text-slate-500 mb-1"><i class="fas fa-wallet mr-1"></i>余额</div>
+        <div class="text-xl font-bold text-emerald-600">¥#{$user.balance}</div>
+    </div>
+    <div class="stat-card">
+        <div class="text-xs text-slate-500 mb-1"><i class="fas fa-coins mr-1"></i>积分</div>
+        <div class="text-xl font-bold text-amber-600">¥#{$user.coin}</div>
+    </div>
+    <div class="stat-card">
+        <div class="text-xs text-slate-500 mb-1"><i class="fas fa-chart-line mr-1"></i>总充值</div>
+        <div class="text-xl font-bold text-indigo-600">¥#{$user.recharge}</div>
+    </div>
+    <div class="stat-card">
+        <div class="text-xs text-slate-500 mb-1"><i class="fas fa-gem mr-1"></i>总收入(积分)</div>
+        <div class="text-xl font-bold text-violet-600">¥#{$user.total_coin}</div>
+    </div>
+
+    #{if $user.businessLevel}
+    <div class="stat-card">
+        <div class="text-xs text-slate-500 mb-1"><i class="fas fa-sun mr-1"></i>今日收入</div>
+        <div class="text-xl font-bold text-emerald-600">¥#{$today_income}</div>
+    </div>
+    <div class="stat-card">
+        <div class="text-xs text-slate-500 mb-1"><i class="fas fa-moon mr-1"></i>昨日收入</div>
+        <div class="text-xl font-bold text-slate-600">¥#{$yesterday_income}</div>
+    </div>
+    <div class="stat-card">
+        <div class="text-xs text-slate-500 mb-1"><i class="fas fa-calendar-week mr-1"></i>本周收入</div>
+        <div class="text-xl font-bold text-blue-600">¥#{$week_income}</div>
+    </div>
+    <div class="stat-card">
+        <div class="text-xs text-slate-500 mb-1"><i class="fas fa-exchange-alt mr-1"></i>总交易</div>
+        <div class="text-xl font-bold text-pink-600">¥#{$trade}</div>
+    </div>
+    #{/if}
+</div>
+
+<!-- Info Table -->
+<div class="glow-card p-5 mb-6">
+    <h3 class="text-sm font-semibold text-slate-600 mb-4"><i class="fas fa-info-circle text-indigo-500 mr-2"></i>账户信息</h3>
+    <div class="space-y-3 text-sm">
+        <div class="flex items-center justify-between py-2 border-b border-slate-200">
+            <span class="text-slate-500">当前登录 IP</span>
+            <span class="text-indigo-600 font-mono">#{$user.login_ip}</span>
+        </div>
+        <div class="flex items-center justify-between py-2 border-b border-slate-200">
+            <span class="text-slate-500">登录时间</span>
+            <span class="text-slate-700">#{$user.login_time}</span>
+        </div>
+        <div class="flex items-center justify-between py-2 border-b border-slate-200">
+            <span class="text-slate-500">上次登录 IP</span>
+            <span class="font-mono">#{if $user.last_login_ip}<span class="text-indigo-600">#{$user.last_login_ip}</span>#{if $user.login_ip != $user.last_login_ip} <span class="ai-badge ai-badge-red">异地</span>#{/if}#{else}<span class="text-slate-400">-</span>#{/if}</span>
+        </div>
+        <div class="flex items-center justify-between py-2 border-b border-slate-200">
+            <span class="text-slate-500">上次登录时间</span>
+            <span class="text-slate-700">#{if $user.last_login_time}#{$user.last_login_time}#{else}-#{/if}</span>
+        </div>
+        <div class="flex items-center justify-between py-2 border-b border-slate-200">
+            <span class="text-slate-500">推广人数</span>
+            <span class="text-slate-700">#{$children}</span>
+        </div>
+        <div class="flex items-center justify-between py-2">
+            <span class="text-slate-500">推广链接</span>
+            <span class="text-indigo-600 cursor-pointer clipboard text-xs font-mono truncate max-w-[240px]" data-text="#{$share_url}">#{$share_url} <i class="fas fa-copy ml-1"></i></span>
+        </div>
+    </div>
+</div>
+
+#{ready("/assets/user/controller/dashboard/index.js")}
+#{include file="../Common/Footer.html"}

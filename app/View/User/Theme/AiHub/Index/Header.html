@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content="#{$config.keywords}"/>
+    <meta name="description" content="#{$config.description}"/>
+    <link href="/assets/aihub/images/logo.svg" rel="icon" type="image/svg+xml">
+    <title>#{$title} - #{$config.shop_name}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    ai: { primary: '#6366f1', accent: '#8b5cf6' }
+                }
+            }
+        }
+    }
+    </script>
+    <link rel="stylesheet" href="/assets/aihub/css/aihub.css?v=#{$app.version}">
+    <link rel="stylesheet" href="/assets/common/css/toastr.min.css">
+    <link rel="stylesheet" href="/assets/common/js/layer/theme/default/layer.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6/css/all.min.css">
+    #{js("/assets/common/js/ready.js")}
+    #{index_var()}
+    <!--start::HOOK-->
+    #{hook(\App\Consts\Hook::USER_GLOBAL_VIEW_HEADER)}
+    #{hook(\App\Consts\Hook::USER_VIEW_INDEX_HEADER)}
+    <!--end::HOOK-->
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen">
+
+<!-- Navbar -->
+<nav class="nav-glass fixed top-0 left-0 right-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+            <!-- Logo -->
+            <a href="/" class="flex items-center gap-2 text-slate-900 font-bold text-lg no-underline">
+                <img src="/assets/aihub/images/logo.svg" alt="Logo" class="w-8 h-8 rounded-lg">
+                <span>#{$config.shop_name}</span>
+            </a>
+
+            <!-- Desktop Nav -->
+            <div class="hidden md:flex items-center gap-6">
+                <a href="/" class="text-sm #{if $title == '购物'}text-indigo-600 font-semibold#{else}text-slate-500 hover:text-slate-800#{/if} no-underline transition">
+                    <i class="fas fa-home mr-1"></i>首页
+                </a>
+                <a href="/user/index/query" class="text-sm #{if $title == '订单查询'}text-indigo-600 font-semibold#{else}text-slate-500 hover:text-slate-800#{/if} no-underline transition">
+                    <i class="fas fa-search mr-1"></i>订单查询
+                </a>
+            </div>
+
+            <!-- Search -->
+            <div class="hidden lg:flex items-center">
+                <div class="relative">
+                    <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                    <input class="item-search-input bg-white border border-slate-200 rounded-lg pl-9 pr-4 py-2 text-sm text-slate-700 placeholder-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/10 w-56" type="search" placeholder="搜索模型或套餐..">
+                </div>
+            </div>
+
+            <!-- User Area -->
+            #{if $user}
+            <div class="flex items-center gap-3 ml-4">
+                <div class="relative group">
+                    <button class="flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900 transition">
+                        <img id="user-avatar" src="#{$user.avatar}" alt="" class="w-8 h-8 rounded-full object-cover bg-slate-200">
+                        <span class="hidden sm:inline">
+                            <span id="username" class="font-medium text-slate-800">#{$user.username}</span>
+                            <span id="user-balance" class="block text-xs text-slate-500">余额: <span class="text-emerald-600">¥#{$user.balance}</span></span>
+                        </span>
+                        <i class="fas fa-chevron-down text-xs text-slate-400"></i>
+                    </button>
+                    <div class="invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all absolute right-0 top-full mt-2 w-48 bg-white border border-slate-200 rounded-xl shadow-lg py-2 z-50">
+                        <a href="/user/dashboard/index" class="flex items-center gap-2 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 no-underline"><i class="fas fa-tachometer-alt w-4"></i>控制台</a>
+                        <a href="/user/recharge/index" class="flex items-center gap-2 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 no-underline"><i class="fas fa-wallet w-4"></i>充值</a>
+                        <hr class="border-slate-100 my-1">
+                        <a href="/user/personal/purchaseRecord" class="flex items-center gap-2 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 no-underline"><i class="fas fa-receipt w-4"></i>我的订单</a>
+                        <a href="/user/security/personal" class="flex items-center gap-2 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 no-underline"><i class="fas fa-cog w-4"></i>设置</a>
+                        <hr class="border-slate-100 my-1">
+                        <a href="/user/authentication/logout" class="flex items-center gap-2 px-4 py-2 text-sm text-red-500 hover:bg-red-50 no-underline"><i class="fas fa-sign-out-alt w-4"></i>退出</a>
+                    </div>
+                </div>
+            </div>
+            #{else}
+            <div class="flex items-center gap-2 ml-4">
+                <a href="/user/authentication/login" class="text-sm text-slate-600 hover:text-slate-900 px-4 py-2 rounded-lg border border-slate-300 hover:border-slate-400 no-underline transition">登录</a>
+                <a href="/user/authentication/register" class="text-sm text-white px-4 py-2 rounded-lg btn-ai no-underline">注册</a>
+            </div>
+            #{/if}
+
+            <!-- Mobile menu button -->
+            <button class="md:hidden text-slate-500 hover:text-slate-800 ml-2" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')">
+                <i class="fas fa-bars text-lg"></i>
+            </button>
+        </div>
+    </div>
+    <!-- Mobile menu -->
+    <div id="mobile-menu" class="hidden md:hidden border-t border-slate-200 bg-white px-4 pb-4">
+        <a href="/" class="block py-2 text-sm text-slate-600 no-underline"><i class="fas fa-home mr-2"></i>首页</a>
+        <a href="/user/index/query" class="block py-2 text-sm text-slate-600 no-underline"><i class="fas fa-search mr-2"></i>订单查询</a>
+        <div class="mt-2">
+            <input class="item-search-input w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-2 text-sm text-slate-700 placeholder-slate-400" type="search" placeholder="搜索模型或套餐..">
+        </div>
+    </div>
+</nav>
+
+<div id="pjax-container" class="pt-16">

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <title>#{$title} - #{$config.title}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href="/assets/aihub/images/logo.svg" rel="icon" type="image/svg+xml">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+    tailwind.config = {
+        theme: { extend: { colors: { ai: { primary: '#6366f1', accent: '#8b5cf6' } } } }
+    }
+    </script>
+    <link rel="stylesheet" href="/assets/aihub/css/aihub.css?v=#{$app.version}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6/css/all.min.css">
+    #{css(
+    [
+    "/assets/common/css/_.css",
+    "/assets/user/css/_user.css"
+    ],
+    [
+    "/assets/common/css/font.min.css",
+    "/assets/common/js/layui/css/layui.css",
+    "/assets/common/css/select2.min.css",
+    "/assets/common/css/toastr.min.css",
+    "/assets/common/js/table/bootstrap-table.css",
+    "/assets/common/js/layer/theme/default/layer.css",
+    "/assets/common/css/component.css",
+    "/assets/user/css/global_2.css"
+    ])}
+    #{js("/assets/common/js/ready.js")}
+    <!--start::HOOK-->
+    #{hook(\App\Consts\Hook::USER_VIEW_HEADER)}
+    <!--end::HOOK-->
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+<!-- Top Nav -->
+<header class="nav-glass fixed top-0 left-0 right-0 z-50">
+    <div class="flex items-center justify-between h-14 px-4 lg:px-6">
+        <div class="flex items-center gap-3">
+            <button onclick="document.getElementById('sidebar').classList.toggle('-translate-x-full')" class="lg:hidden text-slate-500 hover:text-slate-800">
+                <i class="fas fa-bars"></i>
+            </button>
+            <a href="/" class="flex items-center gap-2 text-slate-900 font-bold no-underline">
+                <img src="/assets/aihub/images/logo.svg" class="w-7 h-7 rounded-lg" alt="">
+                <span class="hidden sm:inline">#{$config.shop_name}</span>
+            </a>
+        </div>
+        <div class="flex items-center gap-4">
+            <a href="/" class="text-sm text-slate-500 hover:text-slate-800 no-underline hidden sm:inline"><i class="fas fa-store mr-1"></i>商城</a>
+            <div class="flex items-center gap-2">
+                <img src="#{$user.avatar}" class="w-7 h-7 rounded-full object-cover bg-slate-200" alt="">
+                <span class="text-sm text-slate-600 hidden sm:inline">#{$user.username}</span>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Layout -->
+<div class="flex pt-14 min-h-screen">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="w-60 bg-white border-r border-slate-200 fixed lg:sticky top-14 h-[calc(100vh-3.5rem)] overflow-y-auto z-40 transition-transform -translate-x-full lg:translate-x-0">
+        <div class="p-4 space-y-1">
+            #{include file="./Nav.html"}
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 min-w-0 p-4 lg:p-6">
+        <div id="pjax-container">

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href="/assets/aihub/images/logo.svg" rel="icon" type="image/svg+xml">
+    <title>#{$title} - #{$config.shop_name}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+    tailwind.config = {
+        theme: { extend: { colors: { ai: { primary: '#6366f1', accent: '#8b5cf6' } } } }
+    }
+    </script>
+    <link rel="stylesheet" href="/assets/aihub/css/aihub.css?v=#{$app.version}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6/css/all.min.css">
+    #{js("/assets/common/js/ready.js")}
+    <!--start::HOOK-->
+    #{hook(\App\Consts\Hook::USER_GLOBAL_VIEW_HEADER)}
+    <!--end::HOOK-->
+</head>
+<body class="bg-slate-50 text-slate-800">

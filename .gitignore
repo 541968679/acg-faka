@@ -1,0 +1,9 @@
+.env
+.env.*
+!.env.prod.example
+runtime/
+runtime.log
+assets/cache/
+vendor/
+node_modules/
+docker/mysql/acgfaka-export.sql

@@ -1,0 +1,68 @@
+#{include file="./Header.html"}
+<main class="auth-card-wrapper">
+    <div class="w-full max-w-md mx-auto px-4 relative z-10">
+        <div class="glow-card p-8">
+            <!-- Brand -->
+            <div class="text-center mb-6">
+                <a href="/" class="inline-flex items-center gap-2 no-underline mb-3">
+                    <img src="/assets/aihub/images/logo.svg" alt="Logo" class="w-10 h-10 rounded-xl">
+                </a>
+                <h2 class="text-xl font-bold text-slate-900">登录到 #{$config.shop_name}</h2>
+                <p class="text-slate-500 text-sm mt-1">欢迎回来，继续使用 AI 模型服务</p>
+            </div>
+
+            <form class="needs-validation space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-600 mb-1.5">账号</label>
+                    <input type="text" name="username" class="ai-input w-full" placeholder="用户名 / 手机号 / 邮箱" required>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-600 mb-1.5">密码</label>
+                    <input type="password" name="password" class="ai-input w-full" placeholder="••••••••" minlength="6" required>
+                </div>
+
+                #{if $config.login_verification == 1}
+                <div class="flex items-center gap-3">
+                    <div class="flex-1">
+                        <input type="text" name="captcha" class="ai-input w-full" placeholder="图形验证码">
+                    </div>
+                    <img src="/user/captcha/image?action=login" onclick="this.src='/user/captcha/image?action=login&t=' + new Date().getTime()" class="h-10 rounded-lg cursor-pointer border border-slate-200" alt="验证码">
+                </div>
+                #{/if}
+
+                <div class="flex items-center justify-between text-sm">
+                    <label class="flex items-center gap-2 text-slate-500 cursor-pointer">
+                        <input id="rememberMe" name="remember" type="checkbox" value="1" class="rounded border-slate-300 bg-white text-indigo-500">
+                        <span>保持登录</span>
+                    </label>
+                    <a href="#{if $config.forget_type == 0}/user/authentication/emailForget#{else}/user/authentication/phoneForget#{/if}" class="text-indigo-600 hover:text-indigo-500 no-underline">忘记密码？</a>
+                </div>
+
+                <button type="submit" class="btn-ai w-full py-3 rounded-lg text-center font-semibold">
+                    <i class="fas fa-sign-in-alt mr-2"></i>登录
+                </button>
+            </form>
+
+            #{if getHookNum(\App\Consts\Hook::USER_VIEW_AUTH_LOGIN_BUTTON) > 0}
+            <div class="flex items-center gap-3 my-5">
+                <div class="flex-1 h-px bg-slate-200"></div>
+                <span class="text-slate-400 text-xs">其他方式</span>
+                <div class="flex-1 h-px bg-slate-200"></div>
+            </div>
+            #{/if}
+
+            <!--start::HOOK-->
+            #{hook(\App\Consts\Hook::USER_VIEW_AUTH_LOGIN_BUTTON)}
+            <!--end::HOOK-->
+
+            #{if $config.registered_state == 1}
+            <p class="text-center text-sm text-slate-500 mt-6">
+                还没有账号？<a href="/user/authentication/register" class="text-indigo-600 hover:text-indigo-500 no-underline font-medium">立即注册</a>
+            </p>
+            #{/if}
+        </div>
+    </div>
+</main>
+#{ready("/assets/user/controller/auth/login.js")}
+#{include file="./Footer.html"}

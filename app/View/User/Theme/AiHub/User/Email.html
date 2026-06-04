@@ -1,0 +1,30 @@
+#{include file="../Common/Header.html"}
+<div class="mb-6">
+    <h1 class="text-2xl font-bold text-slate-900">安全中心</h1>
+</div>
+#{include file="../Common/SecurityNav.html"}
+<div class="glow-card p-5">
+    <h3 class="text-sm font-semibold text-slate-600 mb-4"><i class="fas fa-envelope text-indigo-500 mr-2"></i>邮箱设置</h3>
+    <form class="layui-form space-y-4" style="max-width: 400px;">
+        <div>
+            <label class="block text-sm font-medium text-slate-600 mb-1.5">当前邮箱</label>
+            <input type="text" value="#{$user.email}" class="ai-input w-full" disabled>
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-slate-600 mb-1.5">新邮箱</label>
+            <div class="flex gap-2">
+                <input type="email" name="email" class="ai-input flex-1" placeholder="输入新邮箱">
+                <button type="button" class="send-email px-4 py-2 bg-indigo-500/10 text-indigo-600 rounded-lg border border-indigo-500/20 hover:bg-indigo-500/20 text-sm whitespace-nowrap transition">发送验证码</button>
+            </div>
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-slate-600 mb-1.5">验证码</label>
+            <input type="text" name="code" class="ai-input w-full" placeholder="输入邮箱验证码">
+        </div>
+        <div class="pt-2">
+            <button type="submit" class="btn-ai px-6 py-2 rounded-lg"><i class="fas fa-save mr-2"></i>保存</button>
+        </div>
+    </form>
+</div>
+#{ready("/assets/user/controller/security/email.js")}
+#{include file="../Common/Footer.html"}

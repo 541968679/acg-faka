@@ -1,0 +1,85 @@
+#{include file="./Header.html"}
+<main class="auth-card-wrapper">
+    <div class="w-full max-w-md mx-auto px-4 relative z-10">
+        <div class="glow-card p-8">
+            <div class="text-center mb-6">
+                <a href="/" class="inline-flex items-center gap-2 no-underline mb-3">
+                    <img src="/assets/aihub/images/logo.svg" alt="Logo" class="w-10 h-10 rounded-xl">
+                </a>
+                <h2 class="text-xl font-bold text-slate-900">注册 #{$config.shop_name}</h2>
+                <p class="text-slate-500 text-sm mt-1">创建账号，开始使用 AI 模型服务</p>
+            </div>
+
+            <form class="needs-validation space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-600 mb-1.5">用户名</label>
+                    <input type="text" name="username" class="ai-input w-full" placeholder="设置用户名" required>
+                </div>
+
+                #{if $config.registered_type == 0 || $config.registered_type == 2}
+                <div>
+                    <label class="block text-sm font-medium text-slate-600 mb-1.5">邮箱</label>
+                    <input type="email" name="email" class="ai-input w-full" placeholder="your@email.com">
+                </div>
+                #{/if}
+
+                #{if $config.registered_type == 1 || $config.registered_type == 2}
+                <div>
+                    <label class="block text-sm font-medium text-slate-600 mb-1.5">手机号</label>
+                    <div class="flex gap-2">
+                        <input type="text" name="phone" class="ai-input flex-1" placeholder="手机号码">
+                        <button type="button" class="send-sms px-4 py-2 bg-indigo-500/10 text-indigo-600 rounded-lg border border-indigo-500/20 hover:bg-indigo-500/20 text-sm whitespace-nowrap transition">发送验证码</button>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-600 mb-1.5">短信验证码</label>
+                    <input type="text" name="sms_code" class="ai-input w-full" placeholder="输入短信验证码">
+                </div>
+                #{/if}
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-600 mb-1.5">密码</label>
+                    <input type="password" name="password" class="ai-input w-full" placeholder="至少6位密码" minlength="6" required>
+                </div>
+
+                #{if $config.register_verification == 1}
+                <div class="flex items-center gap-3">
+                    <div class="flex-1">
+                        <input type="text" name="captcha" class="ai-input w-full" placeholder="图形验证码">
+                    </div>
+                    <img src="/user/captcha/image?action=register" onclick="this.src='/user/captcha/image?action=register&t=' + new Date().getTime()" class="h-10 rounded-lg cursor-pointer border border-slate-200" alt="验证码">
+                </div>
+                #{/if}
+
+                #{if $config.invite_code == 1}
+                <div>
+                    <label class="block text-sm font-medium text-slate-600 mb-1.5">邀请码</label>
+                    <input type="text" name="invite_code" class="ai-input w-full" placeholder="邀请码（选填）">
+                </div>
+                #{/if}
+
+                <button type="submit" class="btn-ai w-full py-3 rounded-lg text-center font-semibold">
+                    <i class="fas fa-user-plus mr-2"></i>注册账号
+                </button>
+            </form>
+
+            #{if getHookNum(\App\Consts\Hook::USER_VIEW_AUTH_REGISTER_BUTTON) > 0}
+            <div class="flex items-center gap-3 my-5">
+                <div class="flex-1 h-px bg-slate-200"></div>
+                <span class="text-slate-400 text-xs">其他方式</span>
+                <div class="flex-1 h-px bg-slate-200"></div>
+            </div>
+            #{/if}
+
+            <!--start::HOOK-->
+            #{hook(\App\Consts\Hook::USER_VIEW_AUTH_REGISTER_BUTTON)}
+            <!--end::HOOK-->
+
+            <p class="text-center text-sm text-slate-500 mt-6">
+                已有账号？<a href="/user/authentication/login" class="text-indigo-600 hover:text-indigo-500 no-underline font-medium">立即登录</a>
+            </p>
+        </div>
+    </div>
+</main>
+#{ready("/assets/user/controller/auth/register.js")}
+#{include file="./Footer.html"}
