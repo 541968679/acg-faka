@@ -98,21 +98,33 @@ restart_stack() {
 }
 
 verify_running_image() {
-    local expected_id app_id app_name cron_id cron_name
+    local expected_id app_id app_name app_status cron_id cron_name cron_status
     expected_id="$(docker image inspect "$LATEST_TAG" --format '{{.Id}}')"
 
     app_id="$(docker inspect acgfaka-app --format '{{.Image}}')"
     app_name="$(docker inspect acgfaka-app --format '{{.Config.Image}}')"
+    app_status="$(docker inspect acgfaka-app --format '{{.State.Status}}')"
     cron_id="$(docker inspect acgfaka-cron --format '{{.Image}}')"
     cron_name="$(docker inspect acgfaka-cron --format '{{.Config.Image}}')"
+    cron_status="$(docker inspect acgfaka-cron --format '{{.State.Status}}')"
 
     if [ "$app_name" != "$LATEST_TAG" ] || [ "$app_id" != "$expected_id" ]; then
         log "ERROR: app image is ${app_name} (${app_id}), expected ${LATEST_TAG} (${expected_id})"
         return 1
     fi
 
+    if [ "$app_status" != "running" ]; then
+        log "ERROR: app container status is ${app_status}; expected running"
+        return 1
+    fi
+
     if [ "$cron_name" != "$LATEST_TAG" ] || [ "$cron_id" != "$expected_id" ]; then
         log "ERROR: cron image is ${cron_name} (${cron_id}), expected ${LATEST_TAG} (${expected_id})"
+        return 1
+    fi
+
+    if [ "$cron_status" != "running" ]; then
+        log "ERROR: cron container status is ${cron_status}; expected running"
         return 1
     fi
 
