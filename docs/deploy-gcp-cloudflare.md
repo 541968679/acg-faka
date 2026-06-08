@@ -47,7 +47,10 @@ Required values:
 - `ADMIN_EMAIL`: initial admin login email
 - `ADMIN_PASSWORD`: initial admin login password
 - `DB_PASSWORD`, `MYSQL_ROOT_PASSWORD`, `ADMIN_SALT`: random secret strings
-- `EPAY_APPID`, `EPAY_APPSECRET`: HuPiJiao/Epay credentials
+- `EPAY_API_URL`: HuPiJiao/Epay API endpoint, defaults to `https://api.xunhupay.com/payment/do.html`
+- `EPAY_ALIPAY_APPID`, `EPAY_ALIPAY_APPSECRET`: HuPiJiao/Epay Alipay channel credentials
+- `EPAY_WECHAT_APPID`, `EPAY_WECHAT_APPSECRET`: HuPiJiao/Epay WeChat channel credentials
+- `EPAY_APPID`, `EPAY_APPSECRET`: legacy single-channel fallback for older Alipay deployments
 - `ORDER_CLEANUP_INTERVAL`: expired-order cleanup loop interval in seconds
 
 `ADMIN_*` values are only used when the MySQL `db_data` volume is first created.
@@ -182,13 +185,17 @@ named `Epay`, with plugin metadata describing it as HuPiJiao Pay.
 Sensitive payment values are read from:
 
 ```text
-EPAY_APPID
-EPAY_APPSECRET
+EPAY_ALIPAY_APPID
+EPAY_ALIPAY_APPSECRET
+EPAY_WECHAT_APPID
+EPAY_WECHAT_APPSECRET
 ```
 
-Do not print or commit the actual `appid` or `appsecret`. If the current
-production host has credentials in `app/Pay/Epay/Config/Config.php`, copy them
-into `/opt/acgfaka/.env.prod` before switching to the remote-build deployment.
+The Alipay channel also accepts the legacy `EPAY_APPID` / `EPAY_APPSECRET`
+pair as a fallback. Do not print or commit the actual `appid` or `appsecret`.
+If the current production host has credentials in `app/Pay/Epay/Config/Config.php`,
+copy them into `/opt/acgfaka/.env.prod` before switching to the remote-build
+deployment.
 
 Third-party plugins installed from the app store write files under `app/Plugin`,
 `app/Pay`, or `app/View/User/Theme`. The production image is now treated as the

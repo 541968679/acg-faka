@@ -1,17 +1,12 @@
 <?php
+declare(strict_types=1);
+
 return [
     [
-        'name' => 'appid',
-        'title' => 'APPID',
+        'name' => 'api_url',
+        'title' => 'APIåœ°å€',
         'type' => 'input',
-        'placeholder' => '»¢Æ¤½·ÉÌ»§APPID',
-        'default' => ''
+        'placeholder' => 'https://api.xunhupay.com/payment/do.html',
+        'default' => getenv('EPAY_API_URL') ?: 'https://api.xunhupay.com/payment/do.html',
     ],
-    [
-        'name' => 'appsecret',
-        'title' => 'APPSECRET(ÃÜÔ¿)',
-        'type' => 'input',
-        'placeholder' => '»¢Æ¤½·ÉÌ»§ÃÜÔ¿',
-        'default' => ''
-    ]
 ];

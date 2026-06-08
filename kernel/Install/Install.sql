@@ -391,11 +391,12 @@ CREATE TABLE `__PREFIX__pay`  (
                                   INDEX `recharge`(`recharge` ASC) USING BTREE,
                                   INDEX `sort`(`sort` ASC) USING BTREE,
                                   INDEX `equipment`(`equipment` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = DYNAMIC;
 
 
 INSERT INTO `__PREFIX__pay` VALUES (1, '余额', '/assets/static/images/wallet.png', '#system', 1, 0, '1997-01-01 00:00:00', '#system', 999, 0, 0.000, 0);
 INSERT INTO `__PREFIX__pay` VALUES (2, '支付宝', '/assets/user/images/cash/alipay.png', 'alipay', 1, 1, '1997-01-01 00:00:00', 'Epay', 1, 0, 0.000, 0);
+INSERT INTO `__PREFIX__pay` VALUES (3, '微信', '/assets/user/images/cash/wechat.png', 'wechat', 1, 1, '1997-01-01 00:00:00', 'Epay', 2, 0, 0.000, 0);
 
 
 DROP TABLE IF EXISTS `__PREFIX__shared`;
@@ -440,6 +441,7 @@ CREATE TABLE `__PREFIX__user`  (
                                    `nicename` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '真实姓名',
                                    `alipay` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '支付宝账号',
                                    `wechat` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '微信收款二维码',
+                                   `wallet_address` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '钱包地址',
                                    `settlement` tinyint UNSIGNED NOT NULL DEFAULT 0 COMMENT '自动结算：0=支付宝，1=微信',
                                    PRIMARY KEY (`id`) USING BTREE,
                                    UNIQUE INDEX `username`(`username` ASC) USING BTREE,
