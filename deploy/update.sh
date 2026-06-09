@@ -97,6 +97,51 @@ restart_stack() {
     compose up -d --force-recreate app cron caddy 2>&1 | tee -a "$LOG_FILE"
 }
 
+run_db_migrations() {
+    log "--- Running database migrations ---"
+    compose exec -T db sh -s <<'SH' 2>&1 | tee -a "$LOG_FILE"
+set -e
+prefix="${DB_PREFIX:-acg_}"
+
+mysql -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE" <<SQL
+CREATE TABLE IF NOT EXISTS \`${prefix}json_pickup\` (
+  \`id\` int unsigned NOT NULL AUTO_INCREMENT COMMENT 'primary key',
+  \`code\` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'pickup code',
+  \`commodity_id\` int unsigned NOT NULL COMMENT 'commodity id',
+  \`card_id\` int unsigned DEFAULT NULL COMMENT 'linked card id',
+  \`order_id\` int unsigned DEFAULT NULL COMMENT 'first download order id',
+  \`batch_no\` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT 'import batch',
+  \`source_filename\` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT 'source filename',
+  \`filename\` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'download filename',
+  \`content\` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'json content',
+  \`content_hash\` char(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'sha256 hash',
+  \`size\` int unsigned NOT NULL DEFAULT 0 COMMENT 'content bytes',
+  \`status\` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '0=available,1=downloaded,2=locked',
+  \`max_downloads\` int unsigned NOT NULL DEFAULT 1 COMMENT 'max downloads',
+  \`download_count\` int unsigned NOT NULL DEFAULT 0 COMMENT 'download count',
+  \`expire_time\` datetime DEFAULT NULL COMMENT 'expire time',
+  \`create_time\` datetime NOT NULL COMMENT 'create time',
+  \`update_time\` datetime NOT NULL COMMENT 'update time',
+  \`last_download_time\` datetime DEFAULT NULL COMMENT 'last download time',
+  PRIMARY KEY (\`id\`) USING BTREE,
+  UNIQUE KEY \`code\` (\`code\`) USING BTREE,
+  KEY \`commodity_id\` (\`commodity_id\`) USING BTREE,
+  KEY \`card_id\` (\`card_id\`) USING BTREE,
+  KEY \`order_id\` (\`order_id\`) USING BTREE,
+  KEY \`batch_no\` (\`batch_no\`) USING BTREE,
+  KEY \`status\` (\`status\`) USING BTREE,
+  KEY \`expire_time\` (\`expire_time\`) USING BTREE,
+  CONSTRAINT \`${prefix}json_pickup_ibfk_1\` FOREIGN KEY (\`commodity_id\`) REFERENCES \`${prefix}commodity\` (\`id\`) ON DELETE CASCADE ON UPDATE RESTRICT,
+  CONSTRAINT \`${prefix}json_pickup_ibfk_2\` FOREIGN KEY (\`card_id\`) REFERENCES \`${prefix}card\` (\`id\`) ON DELETE SET NULL ON UPDATE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
+
+UPDATE \`${prefix}pay\`
+SET \`commodity\` = 0, \`recharge\` = 0
+WHERE \`code\` = 'alipay' AND \`handle\` = 'Epay';
+SQL
+SH
+}
+
 verify_running_image() {
     local expected_id app_id app_name app_status cron_id cron_name cron_status
     expected_id="$(docker image inspect "$LATEST_TAG" --format '{{.Id}}')"
@@ -199,6 +244,8 @@ do_deploy() {
 
     log "--- Starting dependencies ---"
     compose up -d db redis 2>&1 | tee -a "$LOG_FILE"
+
+    run_db_migrations
 
     restart_stack
 

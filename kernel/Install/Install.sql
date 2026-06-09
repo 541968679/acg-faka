@@ -84,6 +84,39 @@ CREATE TABLE `__PREFIX__card`  (
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = DYNAMIC;
 
 
+DROP TABLE IF EXISTS `__PREFIX__json_pickup`;
+CREATE TABLE `__PREFIX__json_pickup`  (
+                                           `id` int UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键id',
+                                           `code` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '提卡码',
+                                           `commodity_id` int UNSIGNED NOT NULL COMMENT '商品id',
+                                           `card_id` int UNSIGNED NULL DEFAULT NULL COMMENT '关联卡密id',
+                                           `order_id` int UNSIGNED NULL DEFAULT NULL COMMENT '首次下载订单id',
+                                           `batch_no` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '导入批次',
+                                           `source_filename` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '源文件名',
+                                           `filename` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '下载文件名',
+                                           `content` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'JSON内容',
+                                           `content_hash` char(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '内容SHA256',
+                                           `size` int UNSIGNED NOT NULL DEFAULT 0 COMMENT '内容字节数',
+                                           `status` tinyint UNSIGNED NOT NULL DEFAULT 0 COMMENT '状态：0=可领取，1=已领取完，2=锁定',
+                                           `max_downloads` int UNSIGNED NOT NULL DEFAULT 1 COMMENT '最大下载次数',
+                                           `download_count` int UNSIGNED NOT NULL DEFAULT 0 COMMENT '已下载次数',
+                                           `expire_time` datetime NULL DEFAULT NULL COMMENT '过期时间',
+                                           `create_time` datetime NOT NULL COMMENT '创建时间',
+                                           `update_time` datetime NOT NULL COMMENT '更新时间',
+                                           `last_download_time` datetime NULL DEFAULT NULL COMMENT '最后下载时间',
+                                           PRIMARY KEY (`id`) USING BTREE,
+                                           UNIQUE INDEX `code`(`code` ASC) USING BTREE,
+                                           INDEX `commodity_id`(`commodity_id` ASC) USING BTREE,
+                                           INDEX `card_id`(`card_id` ASC) USING BTREE,
+                                           INDEX `order_id`(`order_id` ASC) USING BTREE,
+                                           INDEX `batch_no`(`batch_no` ASC) USING BTREE,
+                                           INDEX `status`(`status` ASC) USING BTREE,
+                                           INDEX `expire_time`(`expire_time` ASC) USING BTREE,
+                                           CONSTRAINT `__PREFIX__json_pickup_ibfk_1` FOREIGN KEY (`commodity_id`) REFERENCES `__PREFIX__commodity` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT,
+                                           CONSTRAINT `__PREFIX__json_pickup_ibfk_2` FOREIGN KEY (`card_id`) REFERENCES `__PREFIX__card` (`id`) ON DELETE SET NULL ON UPDATE RESTRICT
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = DYNAMIC;
+
+
 DROP TABLE IF EXISTS `__PREFIX__cash`;
 CREATE TABLE `__PREFIX__cash`  (
                                    `id` int UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键id',
@@ -395,7 +428,7 @@ CREATE TABLE `__PREFIX__pay`  (
 
 
 INSERT INTO `__PREFIX__pay` VALUES (1, '余额', '/assets/static/images/wallet.png', '#system', 1, 0, '1997-01-01 00:00:00', '#system', 999, 0, 0.000, 0);
-INSERT INTO `__PREFIX__pay` VALUES (2, '支付宝', '/assets/user/images/cash/alipay.png', 'alipay', 1, 1, '1997-01-01 00:00:00', 'Epay', 1, 0, 0.000, 0);
+INSERT INTO `__PREFIX__pay` VALUES (2, '支付宝', '/assets/user/images/cash/alipay.png', 'alipay', 0, 0, '1997-01-01 00:00:00', 'Epay', 1, 0, 0.000, 0);
 INSERT INTO `__PREFIX__pay` VALUES (3, '微信', '/assets/user/images/cash/wechat.png', 'wechat', 1, 1, '1997-01-01 00:00:00', 'Epay', 2, 0, 0.000, 0);
 
 

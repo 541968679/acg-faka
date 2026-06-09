@@ -1,0 +1,31 @@
+#{include file="../Header.html"}
+<div class="content d-flex flex-column flex-column-fluid" id="kt_content">
+    #{include file="../Toolbar.html"}
+    <div class="post d-flex flex-column-fluid" id="kt_post">
+        <div id="kt_content_container" class="container-fluid">
+            <div class="card mb-5 mb-xl-8">
+                <div class="card-header border-0">
+                    <div class="card-toolbar">
+                        <button class="btn btn-sm btn-light-primary btn-app-create me-3">
+                            <i class="fa-duotone fa-regular fa-cloud-arrow-up"></i> 导入 JSON 提卡
+                        </button>
+                        <button class="btn btn-sm btn-light-danger btn-app-del me-3">
+                            <i class="fa-duotone fa-regular fa-trash-can"></i> 删除选中
+                        </button>
+                        <button class="btn btn-sm btn-light-dark btn-app-lock me-3">
+                            <i class="fa-duotone fa-regular fa-lock-hashtag"></i> 锁定选中
+                        </button>
+                        <button class="btn btn-sm btn-light-success btn-app-unlock me-3">
+                            <i class="fa-duotone fa-regular fa-unlock-keyhole"></i> 解锁选中
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body py-3">
+                    <table id="json-pickup-table"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+#{ready("/assets/admin/controller/trade/json.pickup.js")}
+#{include file="../Footer.html"}

@@ -19,13 +19,10 @@ class Authentication extends Manage
     #[Inject]
     private ManageSSO $sso;
 
-    /**
-     * @param string $username
-     * @param string $password
-     * @return array
-     */
-    public function login(string $username, string $password): array
+    public function login(): array
     {
+        $username = (string)$this->request->post("username", Filter::NORMAL);
+        $password = (string)$this->request->post("password", Filter::NORMAL);
         $remember = (bool)$this->request->post("remember", Filter::BOOLEAN);
         return $this->json(200, "success", $this->sso->login($username, $password, $remember));
     }
