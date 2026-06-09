@@ -403,11 +403,9 @@ class Index extends User
                 $relation->select(['id', 'name', 'cover', 'password_status', 'leave_message']);
             }]);
 
-            if (preg_match('/^\d{18}$/', $keywords)) {
-                $builder = $builder->where("trade_no", $keywords);
-            } else {
-                $builder = $builder->where("contact", $keywords);
-            }
+            $builder = $builder->where(function (Builder $query) use ($keywords) {
+                $query->where("trade_no", $keywords)->orWhere("contact", $keywords);
+            });
             return $builder;
         });
 

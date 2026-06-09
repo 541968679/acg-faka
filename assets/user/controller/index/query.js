@@ -257,7 +257,16 @@
     });
 
 
-    if (/^\d{18}$/.test(util.getParam("tradeNo"))) {
-        $('.btn-search-query').click();
+    const initialKeywords = (
+        util.getParam("keywords")
+        || util.getParam("contact")
+        || util.getParam("tradeNo")
+        || $('.order-query-form [name="keywords"]').val()
+        || ''
+    ).trim();
+
+    if (initialKeywords) {
+        $('.order-query-form [name="keywords"]').val(initialKeywords);
+        $('.order-query-form').trigger('submit');
     }
 }();
