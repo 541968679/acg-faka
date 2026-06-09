@@ -63,4 +63,16 @@ assertThrows(
 $code = JsonPickup::generateCode('JP');
 assertSameValue(1, preg_match('/^JP-[A-Z0-9]{6}-[A-Z0-9]{6}$/', $code), 'pickup code should use the expected readable format');
 
+$codes = JsonPickup::parseCodes(" jp-aaa111-bbb222 \nJP-CCC333-DDD444, jp-aaa111-bbb222\r\n");
+assertSameValue(
+    ['JP-AAA111-BBB222', 'JP-CCC333-DDD444'],
+    $codes,
+    'batch pickup code parsing should normalize, dedupe, and preserve first-seen order'
+);
+
+assertThrows(
+    static fn() => JsonPickup::parseCodes(" \n\t "),
+    'empty batch pickup code input should be rejected'
+);
+
 echo 'json pickup service tests passed' . PHP_EOL;

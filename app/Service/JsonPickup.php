@@ -24,5 +24,12 @@ interface JsonPickup
 
     public function getPublicInfo(string $code): array;
 
+    public function getPublicInfoMany(array|string $codes): array;
+
     public function download(string $code): JsonPickupModel;
+
+    /**
+     * @return array<int, JsonPickupModel>
+     */
+    public function downloadMany(array|string $codes): array;
 }

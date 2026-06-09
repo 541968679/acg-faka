@@ -125,36 +125,84 @@ class JsonPickup implements \App\Service\JsonPickup
         ];
     }
 
+    public function getPublicInfoMany(array|string $codes): array
+    {
+        $items = [];
+        foreach (self::parseCodes($codes) as $code) {
+            try {
+                $items[] = $this->getPublicInfo($code);
+            } catch (JSONException $e) {
+                $items[] = [
+                    'code' => $code,
+                    'filename' => '-',
+                    'commodity_name' => null,
+                    'size' => 0,
+                    'max_downloads' => 0,
+                    'download_count' => 0,
+                    'expire_time' => null,
+                    'status' => 2,
+                    'status_text' => $e->getMessage(),
+                    'can_download' => false,
+                ];
+            }
+        }
+
+        return $items;
+    }
+
     public function download(string $code): JsonPickupModel
     {
-        return DB::connection()->transaction(function () use ($code) {
-            $pickup = JsonPickupModel::query()
-                ->where('code', self::normalizeCode($code))
+        return $this->downloadMany($code)[0];
+    }
+
+    /**
+     * @return array<int, JsonPickupModel>
+     */
+    public function downloadMany(array|string $codes): array
+    {
+        $codes = self::parseCodes($codes);
+
+        return DB::connection()->transaction(function () use ($codes) {
+            $pickups = JsonPickupModel::query()
+                ->whereIn('code', $codes)
                 ->lockForUpdate()
-                ->first();
+                ->get();
 
-            if (!$pickup) {
-                throw new JSONException('提卡码不存在');
+            $pickupMap = [];
+            foreach ($pickups as $pickup) {
+                $pickupMap[(string)$pickup->code] = $pickup;
             }
 
-            [$canDownload, $statusText] = $this->downloadableState($pickup);
-            if (!$canDownload) {
-                throw new JSONException($statusText);
+            $ordered = [];
+            foreach ($codes as $code) {
+                $pickup = $pickupMap[$code] ?? null;
+                if (!$pickup) {
+                    throw new JSONException('提卡码不存在：' . $code);
+                }
+
+                [$canDownload, $statusText] = $this->downloadableState($pickup);
+                if (!$canDownload) {
+                    throw new JSONException($code . '：' . $statusText);
+                }
+                $ordered[] = $pickup;
             }
 
-            $card = $pickup->card_id ? Card::query()->find($pickup->card_id) : null;
-            $pickup->download_count = (int)$pickup->download_count + 1;
-            $pickup->last_download_time = Date::current();
-            $pickup->update_time = Date::current();
-            if (!$pickup->order_id && $card?->order_id) {
-                $pickup->order_id = $card->order_id;
+            $date = Date::current();
+            foreach ($ordered as $pickup) {
+                $card = $pickup->card_id ? Card::query()->find($pickup->card_id) : null;
+                $pickup->download_count = (int)$pickup->download_count + 1;
+                $pickup->last_download_time = $date;
+                $pickup->update_time = $date;
+                if (!$pickup->order_id && $card?->order_id) {
+                    $pickup->order_id = $card->order_id;
+                }
+                if ((int)$pickup->download_count >= (int)$pickup->max_downloads) {
+                    $pickup->status = 1;
+                }
+                $pickup->save();
             }
-            if ((int)$pickup->download_count >= (int)$pickup->max_downloads) {
-                $pickup->status = 1;
-            }
-            $pickup->save();
 
-            return $pickup;
+            return $ordered;
         });
     }
 
@@ -228,6 +276,38 @@ class JsonPickup implements \App\Service\JsonPickup
     public static function normalizeCode(string $code): string
     {
         return strtoupper(trim($code));
+    }
+
+    /**
+     * @return array<int, string>
+     * @throws JSONException
+     */
+    public static function parseCodes(array|string $codes): array
+    {
+        $parts = is_array($codes)
+            ? $codes
+            : (preg_split('/[\s,;，；]+/u', $codes) ?: []);
+        $normalized = [];
+        $seen = [];
+
+        foreach ($parts as $part) {
+            $code = self::normalizeCode((string)$part);
+            if ($code === '' || isset($seen[$code])) {
+                continue;
+            }
+
+            $seen[$code] = true;
+            $normalized[] = $code;
+        }
+
+        if (count($normalized) === 0) {
+            throw new JSONException('请输入提卡码');
+        }
+        if (count($normalized) > 100) {
+            throw new JSONException('一次最多支持 100 个提卡码');
+        }
+
+        return $normalized;
     }
 
     private function makeUniqueCode(string $prefix): string

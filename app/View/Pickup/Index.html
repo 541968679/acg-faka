@@ -28,7 +28,7 @@
             padding: 24px;
         }
         main {
-            width: min(560px, 100%);
+            width: min(640px, 100%);
             background: var(--panel);
             border: 1px solid var(--border);
             border-radius: 8px;
@@ -46,16 +46,18 @@
             color: var(--muted);
             margin-bottom: 8px;
         }
-        input {
+        textarea {
             width: 100%;
-            height: 46px;
+            min-height: 118px;
             border: 1px solid var(--border);
             border-radius: 6px;
-            padding: 0 14px;
+            padding: 12px 14px;
             font-size: 16px;
+            line-height: 1.45;
             outline: none;
+            resize: vertical;
         }
-        input:focus {
+        textarea:focus {
             border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(37, 99, 235, .12);
         }
@@ -84,7 +86,18 @@
             padding: 14px;
             line-height: 1.75;
             font-size: 14px;
+            max-height: 360px;
+            overflow: auto;
         }
+        .pickup-item {
+            padding: 10px 0;
+            border-top: 1px solid var(--border);
+        }
+        .pickup-item:first-child { border-top: 0; padding-top: 0; }
+        .pickup-item:last-child { padding-bottom: 0; }
+        .pickup-code { font-weight: 700; color: var(--text); overflow-wrap: anywhere; }
+        .summary { margin-bottom: 10px; font-weight: 700; color: var(--text); }
+        .hint { margin: -2px 0 10px; font-size: 13px; color: var(--muted); }
         .ok { color: var(--success); }
         .error { color: var(--danger); }
         .muted { color: var(--muted); }
@@ -100,10 +113,11 @@
 <main>
     <h1>JSON提卡</h1>
     <label for="code">提卡码</label>
-    <input id="code" autocomplete="off" placeholder="例如 JP-ABC123-DEF456">
+    <div class="hint">支持多行输入提卡码，也可以用逗号或分号分隔。</div>
+    <textarea id="code" autocomplete="off" placeholder="例如 JP-ABC123-DEF456&#10;JP-GHJ789-KLM012"></textarea>
     <div class="actions">
         <button class="primary" id="query" type="button">查询</button>
-        <button class="secondary" id="download" type="button" disabled>下载 JSON</button>
+        <button class="secondary" id="download" type="button" disabled>下载文件</button>
     </div>
     <div class="result" id="result"></div>
 </main>
@@ -128,15 +142,50 @@
         result.innerHTML = html;
     }
 
-    document.getElementById('query').addEventListener('click', async () => {
-        const code = codeInput.value.trim();
+    function getFilename(response, fallback) {
+        const disposition = response.headers.get('Content-Disposition') || '';
+        const match = disposition.match(/filename="([^"]+)"/i);
+        return match ? match[1] : fallback;
+    }
+
+    async function readError(response) {
+        const text = await response.clone().text();
+        try {
+            const data = JSON.parse(text);
+            return data.msg || data.message || '下载失败';
+        } catch (e) {
+            return text || '下载失败';
+        }
+    }
+
+    function renderItems(items, canDownloadAll) {
+        const rows = items.map((item, index) => `
+            <div class="pickup-item">
+                <div class="pickup-code">${index + 1}. ${escapeHtml(item.code)}</div>
+                <div class="${item.can_download ? 'ok' : 'error'}">状态：${escapeHtml(item.status_text)}</div>
+                <div>文件：${escapeHtml(item.filename)}</div>
+                <div>商品：${escapeHtml(item.commodity_name || '-')}</div>
+                <div class="muted">下载次数：${escapeHtml(item.download_count)} / ${escapeHtml(item.max_downloads)}</div>
+                <div class="muted">过期时间：${escapeHtml(item.expire_time || '永久')}</div>
+            </div>
+        `).join('');
+        const ready = items.filter(item => item.can_download).length;
+        show(`<div class="summary">可下载 ${ready} / ${items.length}</div>${rows}`, canDownloadAll);
+    }
+
+    codeInput.addEventListener('input', () => {
         download.disabled = true;
-        if (!code) {
+    });
+
+    document.getElementById('query').addEventListener('click', async () => {
+        const codes = codeInput.value.trim();
+        download.disabled = true;
+        if (!codes) {
             show('请输入提卡码', false);
             return;
         }
-        const body = new URLSearchParams({code});
-        const response = await fetch('/pickup/query', {
+        const body = new URLSearchParams({codes});
+        const response = await fetch('/pickup/batchQuery', {
             method: 'POST',
             headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'},
             body
@@ -146,22 +195,39 @@
             show(escapeHtml(data.msg || '查询失败'), false);
             return;
         }
-        const item = data.data;
-        download.disabled = !item.can_download;
-        show(`
-            <div>状态：${escapeHtml(item.status_text)}</div>
-            <div>文件：${escapeHtml(item.filename)}</div>
-            <div>商品：${escapeHtml(item.commodity_name || '-')}</div>
-            <div class="muted">下载次数：${escapeHtml(item.download_count)} / ${escapeHtml(item.max_downloads)}</div>
-            <div class="muted">过期时间：${escapeHtml(item.expire_time || '永久')}</div>
-        `, item.can_download);
+        const items = Array.isArray(data.data?.items) ? data.data.items : [];
+        download.disabled = !data.data?.can_download_all;
+        renderItems(items, Boolean(data.data?.can_download_all));
     });
 
-    download.addEventListener('click', () => {
-        const code = codeInput.value.trim();
-        if (code) {
-            window.location.href = '/pickup/download?code=' + encodeURIComponent(code);
+    download.addEventListener('click', async () => {
+        const codes = codeInput.value.trim();
+        if (!codes) {
+            return;
         }
+        download.disabled = true;
+        const body = new URLSearchParams({codes});
+        const response = await fetch('/pickup/batchDownload', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'},
+            body
+        });
+        const disposition = response.headers.get('Content-Disposition') || '';
+        if (!response.ok || !disposition) {
+            show(escapeHtml(await readError(response)), false);
+            download.disabled = false;
+            return;
+        }
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = getFilename(response, 'json-pickup.zip');
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+        download.disabled = false;
     });
 </script>
 </body>
