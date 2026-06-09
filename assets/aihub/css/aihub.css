@@ -180,6 +180,32 @@ html { scroll-behavior: smooth; }
 }
 .price-tag .unit { font-size: 0.875rem; color: #4f46e5; }
 
+.wholesale-table {
+    width: min(100%, 360px);
+    margin-top: 10px;
+    overflow: hidden;
+    border: 1px solid var(--ai-border);
+    border-radius: 10px;
+    background: #fff;
+    color: var(--ai-text);
+    font-size: 13px;
+}
+.wholesale-table th,
+.wholesale-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--ai-border);
+}
+.wholesale-table thead th {
+    background: var(--ai-bg-alt);
+    color: var(--ai-text-secondary);
+    font-weight: 600;
+}
+.wholesale-table tbody tr:last-child td { border-bottom: 0; }
+.wholesale-table tbody td:last-child {
+    color: #4f46e5;
+    font-weight: 700;
+}
+
 /* SKU chip */
 .sku {
     display: inline-flex; align-items: center; gap: 4px;
